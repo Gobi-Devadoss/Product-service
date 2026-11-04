@@ -1,0 +1,113 @@
+{
+  "info": {
+    "name": "Product Service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8000" },
+    { "key": "productId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": { "method": "GET", "url": "{{baseUrl}}/health" }
+    },
+    {
+      "name": "Create product",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('201 Created', () => pm.response.to.have.status(201));",
+              "pm.collectionVariables.set('productId', pm.response.json().id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Wireless Mouse\",\n  \"description\": \"2.4 GHz ergonomic mouse\",\n  \"price\": 799.50,\n  \"quantity\": 25,\n  \"category\": \"Electronics\"\n}"
+        },
+        "url": "{{baseUrl}}/api/v1/products"
+      }
+    },
+    {
+      "name": "Create product - validation error (400)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"A\",\n  \"price\": 0,\n  \"quantity\": -1\n}" },
+        "url": "{{baseUrl}}/api/v1/products"
+      }
+    },
+    {
+      "name": "Create product - duplicate name (409)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"wireless mouse\",\n  \"price\": 100,\n  \"quantity\": 1,\n  \"category\": \"Electronics\"\n}"
+        },
+        "url": "{{baseUrl}}/api/v1/products"
+      }
+    },
+    {
+      "name": "Get product",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/products/{{productId}}" }
+    },
+    {
+      "name": "Get product - not found (404)",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/products/999999" }
+    },
+    {
+      "name": "List products (filter, sort, paginate)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/products?page=1&size=10&category=Electronics&status=ACTIVE&minPrice=100&maxPrice=5000&sort=price,asc",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "products"],
+          "query": [
+            { "key": "page", "value": "1" },
+            { "key": "size", "value": "10" },
+            { "key": "category", "value": "Electronics" },
+            { "key": "status", "value": "ACTIVE" },
+            { "key": "minPrice", "value": "100" },
+            { "key": "maxPrice", "value": "5000" },
+            { "key": "sort", "value": "price,asc" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Replace product (PUT)",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Gaming Mouse\",\n  \"price\": 1999,\n  \"quantity\": 10,\n  \"category\": \"Electronics\",\n  \"status\": \"ACTIVE\"\n}"
+        },
+        "url": "{{baseUrl}}/api/v1/products/{{productId}}"
+      }
+    },
+    {
+      "name": "Update product (PATCH)",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"quantity\": 5\n}" },
+        "url": "{{baseUrl}}/api/v1/products/{{productId}}"
+      }
+    },
+    {
+      "name": "Delete product",
+      "request": { "method": "DELETE", "url": "{{baseUrl}}/api/v1/products/{{productId}}" }
+    }
+  ]
+}
